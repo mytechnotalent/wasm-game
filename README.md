@@ -281,16 +281,16 @@ cargo test --workspace
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                              command                                     │
-│                          (CLI Interface)                                 │
-│                        exports: wasi:cli/run                             │
+│                              command                                    │
+│                          (CLI Interface)                                │
+│                        exports: wasi:cli/run                            │
 └────────────────────────────────┬────────────────────────────────────────┘
                                  │ imports
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           game_engine                                    │
-│                       (Main Game Loop)                                   │
-│                  exports: docs:game-engine/*                             │
+│                           game_engine                                   │
+│                       (Main Game Loop)                                  │
+│                  exports: docs:game-engine/*                            │
 └─────┬──────────────┬─────────────────┬──────────────────┬───────────────┘
       │ imports      │ imports         │ imports          │ imports
       ▼              ▼                 ▼                  ▼
@@ -298,7 +298,7 @@ cargo test --workspace
 │    player    │ │    enemy     │ │    combat    │ │  inventory   │
 │  (Character) │ │  (Monsters)  │ │  (Battles)   │ │   (Items)    │
 │ exports:     │ │ exports:     │ │ exports:     │ │ exports:     │
-│ docs:player  │ │ docs:enemy   │ │ docs:combat  │ │ docs:inventory│
+│ docs:player  │ │ docs:enemy   │ │ docs:combat  │ │ docs:inv     │
 └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
 ```
 
