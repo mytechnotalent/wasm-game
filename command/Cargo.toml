@@ -1,0 +1,21 @@
+[package]
+name = "command"
+version = "0.1.0"
+edition = "2021"
+description = "CLI command component for Zelda-style WASM game - provides interactive gameplay interface"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[dependencies]
+wit-bindgen-rt = "0.41.0"
+
+[[bin]]
+name = "command"
+path = "src/main.rs"
+
+[package.metadata.component]
+package = "docs:game-engine"
+
+[package.metadata.component.target]
+path = "../wit/game_engine/world.wit"
+world = "app"

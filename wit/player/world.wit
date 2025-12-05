@@ -1,0 +1,124 @@
+/// MIT License
+///
+/// Copyright (c) 2025 Kevin Thomas
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+/// WIT interface definition for the player component.
+///
+/// This package defines the player's core functionality including
+/// movement, health management, and combat statistics for a Zelda-style
+/// action-adventure game.
+package docs:player@0.1.0;
+
+/// Direction enum for player movement.
+///
+/// Represents the four cardinal directions the player can move
+/// in a top-down 2D game world.
+interface types {
+    /// Cardinal direction for movement.
+    enum direction {
+        /// Move upward (north).
+        north,
+        /// Move downward (south).
+        south,
+        /// Move leftward (west).
+        west,
+        /// Move rightward (east).
+        east,
+    }
+
+    /// Player position in 2D world coordinates.
+    record position {
+        /// X coordinate (horizontal position).
+        x: s32,
+        /// Y coordinate (vertical position).
+        y: s32,
+    }
+
+    /// Player combat and health statistics.
+    record player-stats {
+        /// Current health points (0 = defeated).
+        health: u32,
+        /// Maximum health points.
+        max-health: u32,
+        /// Attack power for dealing damage.
+        attack: u32,
+        /// Defense rating for damage reduction.
+        defense: u32,
+        /// Current experience points.
+        experience: u32,
+        /// Current player level.
+        level: u32,
+    }
+}
+
+/// Player movement interface.
+///
+/// Provides functions for moving the player character
+/// within the game world grid.
+interface movement {
+    use types.{direction, position};
+
+    /// Move the player one tile in the specified direction.
+    ///
+    /// Returns the new position after movement.
+    move-player: func(current-pos: position, dir: direction) -> position;
+
+    /// Calculate distance between two positions (Manhattan distance).
+    calculate-distance: func(start: position, end: position) -> u32;
+}
+
+/// Player health and stats interface.
+///
+/// Manages the player's health pool and combat statistics.
+interface stats {
+    use types.{player-stats};
+
+    /// Create a new player with default starting stats.
+    create-player: func() -> player-stats;
+
+    /// Apply damage to the player, considering defense.
+    ///
+    /// Returns updated stats after damage calculation.
+    take-damage: func(stats: player-stats, raw-damage: u32) -> player-stats;
+
+    /// Heal the player by the specified amount.
+    ///
+    /// Cannot exceed max-health.
+    heal: func(stats: player-stats, amount: u32) -> player-stats;
+
+    /// Add experience points and handle level-up.
+    ///
+    /// Returns updated stats with new experience and potentially new level.
+    gain-experience: func(stats: player-stats, exp: u32) -> player-stats;
+
+    /// Check if the player is defeated (health = 0).
+    is-defeated: func(stats: player-stats) -> bool;
+
+    /// Get the experience needed for the next level.
+    exp-to-next-level: func(current-level: u32) -> u32;
+}
+
+/// The player world exports movement and stats interfaces.
+world player {
+    export types;
+    export movement;
+    export stats;
+}

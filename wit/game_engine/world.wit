@@ -1,0 +1,194 @@
+/// MIT License
+///
+/// Copyright (c) 2025 Kevin Thomas
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+/// WIT interface definition for the game engine component.
+///
+/// This package defines the main game loop, world management,
+/// and game state coordination for a Zelda-style action-adventure game.
+/// It composes all other components together.
+package docs:game-engine@0.1.0;
+
+/// Game state and world definitions.
+interface types {
+    /// Game actions the player can perform.
+    enum game-action {
+        /// Move in a direction.
+        move-north,
+        move-south,
+        move-east,
+        move-west,
+        /// Attack with current weapon.
+        attack,
+        /// Use an item from inventory.
+        use-item,
+        /// Open inventory menu.
+        open-inventory,
+        /// Interact with environment/NPC.
+        interact,
+        /// Wait/skip turn.
+        wait,
+        /// Quit the game.
+        quit,
+    }
+
+    /// Current game phase.
+    enum game-phase {
+        /// Exploring the world.
+        exploration,
+        /// In combat with an enemy.
+        combat,
+        /// Viewing inventory.
+        inventory,
+        /// Talking to NPC or reading sign.
+        dialogue,
+        /// Game is paused.
+        paused,
+        /// Game over (player defeated).
+        game-over,
+        /// Victory (boss defeated).
+        victory,
+    }
+
+    /// Result of processing a game action.
+    record action-result {
+        /// Whether the action was successful.
+        success: bool,
+        /// Description of what happened.
+        message: string,
+        /// New game phase after action.
+        new-phase: game-phase,
+        /// Whether the game should continue.
+        game-continues: bool,
+    }
+
+    /// Complete game state snapshot.
+    record game-state {
+        /// Current game phase.
+        phase: game-phase,
+        /// Player's current X position.
+        player-x: s32,
+        /// Player's current Y position.
+        player-y: s32,
+        /// Player's current health.
+        player-health: u32,
+        /// Player's maximum health.
+        player-max-health: u32,
+        /// Player's attack stat.
+        player-attack: u32,
+        /// Player's defense stat.
+        player-defense: u32,
+        /// Player's current level.
+        player-level: u32,
+        /// Player's experience points.
+        player-exp: u32,
+        /// Number of enemies defeated.
+        enemies-defeated: u32,
+        /// Whether the boss has been defeated.
+        boss-defeated: bool,
+        /// Current dungeon/area name.
+        current-area: string,
+        /// Turn counter.
+        turn-number: u32,
+    }
+
+    /// Tile types in the game world.
+    enum tile-type {
+        /// Walkable grass.
+        grass,
+        /// Impassable wall.
+        wall,
+        /// Walkable water (with items).
+        water,
+        /// Forest tile (slower movement).
+        forest,
+        /// Dungeon entrance.
+        dungeon-entrance,
+        /// Shop location.
+        shop,
+        /// Treasure chest.
+        chest,
+        /// NPC location.
+        npc,
+    }
+}
+
+/// Game initialization interface.
+interface init {
+    use types.{game-state};
+
+    /// Create a new game with default starting state.
+    new-game: func() -> game-state;
+
+    /// Load game state (simplified - just validates).
+    validate-state: func(state: game-state) -> bool;
+}
+
+/// Game loop and action processing interface.
+interface engine {
+    use types.{game-action, action-result, game-state, game-phase};
+
+    /// Process a player action and return the result.
+    process-action: func(state: game-state, action: game-action) -> action-result;
+
+    /// Get the current game state as a formatted string.
+    get-status: func(state: game-state) -> string;
+
+    /// Check for enemy encounters after movement.
+    check-encounter: func(state: game-state) -> bool;
+
+    /// Get help text for available actions.
+    get-help: func() -> string;
+}
+
+/// World and map interface.
+interface game-world {
+    use types.{tile-type, game-state};
+
+    /// Get the tile type at a position.
+    get-tile: func(x: s32, y: s32) -> tile-type;
+
+    /// Check if a position is walkable.
+    is-walkable: func(x: s32, y: s32) -> bool;
+
+    /// Get the name of the current area.
+    get-area-name: func(x: s32, y: s32) -> string;
+
+    /// Check if position has a special event.
+    has-event: func(x: s32, y: s32) -> bool;
+}
+
+/// The game engine world exports all game systems.
+/// This is a self-contained component with no external imports.
+world game-engine {
+    export types;
+    export init;
+    export engine;
+    export game-world;
+}
+
+/// App world for the CLI command to import from game engine.
+world app {
+    import types;
+    import init;
+    import engine;
+    import game-world;
+}

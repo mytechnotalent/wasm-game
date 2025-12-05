@@ -1,0 +1,157 @@
+/// MIT License
+///
+/// Copyright (c) 2025 Kevin Thomas
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+/// WIT interface definition for the combat component.
+///
+/// This package defines combat mechanics, damage calculation,
+/// and battle resolution for a Zelda-style action-adventure game.
+/// It imports from player and enemy components.
+package docs:combat@0.1.0;
+
+/// Combat type definitions and data structures.
+interface types {
+    /// Types of attacks available.
+    enum attack-type {
+        /// Basic sword slash.
+        sword-slash,
+        /// Charged spin attack.
+        spin-attack,
+        /// Ranged bow shot.
+        bow-shot,
+        /// Magic spell attack.
+        magic-attack,
+        /// Shield bash (stuns enemies).
+        shield-bash,
+    }
+
+    /// Result of a combat action.
+    record combat-result {
+        /// Damage dealt to the target.
+        damage-dealt: u32,
+        /// Whether the attack was a critical hit.
+        is-critical: bool,
+        /// Whether the target was defeated.
+        target-defeated: bool,
+        /// Experience gained (if enemy defeated).
+        exp-gained: u32,
+        /// Combat message/description.
+        message: string,
+    }
+
+    /// Combat statistics for damage calculation.
+    record combatant-stats {
+        /// Base attack power.
+        attack: u32,
+        /// Defense rating.
+        defense: u32,
+        /// Current health.
+        health: u32,
+        /// Maximum health.
+        max-health: u32,
+        /// Bonus from equipment.
+        equipment-bonus: u32,
+    }
+
+    /// Battle state tracking.
+    record battle-state {
+        /// Whether a battle is currently active.
+        is-active: bool,
+        /// Current turn number.
+        turn-count: u32,
+        /// Player's remaining health.
+        player-health: u32,
+        /// Enemy's remaining health.
+        enemy-health: u32,
+        /// Whether it's the player's turn.
+        is-player-turn: bool,
+    }
+}
+
+/// Damage calculation interface.
+interface damage {
+    use types.{attack-type, combatant-stats};
+
+    /// Calculate base damage for an attack type.
+    calculate-base-damage: func(attack: attack-type, attacker-stats: combatant-stats) -> u32;
+
+    /// Apply defense reduction to damage.
+    apply-defense: func(raw-damage: u32, defender-defense: u32) -> u32;
+
+    /// Calculate critical hit chance (returns 1 for crit, 0 for normal).
+    roll-critical: func(attacker-attack: u32) -> u32;
+
+    /// Apply critical hit multiplier if applicable.
+    apply-critical: func(damage: u32, is-critical: u32) -> u32;
+
+    /// Calculate final damage with all modifiers.
+    calculate-final-damage: func(attack: attack-type, attacker: combatant-stats, defender: combatant-stats) -> u32;
+}
+
+/// Combat action interface.
+interface actions {
+    use types.{attack-type, combat-result, combatant-stats, battle-state};
+
+    /// Execute a player attack against an enemy.
+    player-attack: func(attack: attack-type, player-stats: combatant-stats, enemy-stats: combatant-stats, enemy-exp: u32) -> combat-result;
+
+    /// Execute an enemy attack against the player.
+    enemy-attack: func(enemy-attack: u32, enemy-stats: combatant-stats, player-stats: combatant-stats) -> combat-result;
+
+    /// Check if the player can perform a special attack.
+    can-special-attack: func(attack: attack-type, player-stats: combatant-stats) -> bool;
+
+    /// Attempt to flee from combat.
+    ///
+    /// Returns true if escape was successful.
+    attempt-flee: func(player-speed: u32, enemy-speed: u32) -> bool;
+}
+
+/// Battle management interface.
+interface battle {
+    use types.{battle-state};
+
+    /// Start a new battle.
+    start-battle: func(player-health: u32, enemy-health: u32) -> battle-state;
+
+    /// End the current battle.
+    end-battle: func(state: battle-state) -> battle-state;
+
+    /// Advance to the next turn.
+    next-turn: func(state: battle-state) -> battle-state;
+
+    /// Update battle state after combat action.
+    update-health: func(state: battle-state, player-health: u32, enemy-health: u32) -> battle-state;
+
+    /// Check if the battle is over.
+    is-battle-over: func(state: battle-state) -> bool;
+
+    /// Determine the battle outcome (true = player won).
+    player-won: func(state: battle-state) -> bool;
+}
+
+/// The combat world exports combat interfaces and imports player/enemy types.
+world combat {
+    export types;
+    export damage;
+    export actions;
+    export battle;
+}

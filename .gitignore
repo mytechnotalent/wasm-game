@@ -1,0 +1,23 @@
+# Build artifacts
+/target/
+*/target/
+
+# Composed WASM files
+*.wasm
+!wit/**/*.wasm
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Rust
+**/*.rs.bk
+Cargo.lock

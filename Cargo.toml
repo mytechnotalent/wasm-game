@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+members = ["player", "enemy", "combat", "inventory", "game_engine", "command"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[workspace.dependencies]
+wit-bindgen-rt = "0.41.0"

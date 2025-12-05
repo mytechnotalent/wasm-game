@@ -1,0 +1,26 @@
+[package]
+name = "game-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Game engine component for Zelda-style WASM game - composes all game systems"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[dependencies]
+wit-bindgen-rt = "0.41.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "docs:game-engine"
+
+[package.metadata.component.target]
+path = "../wit/game_engine/world.wit"
+world = "game-engine"
+
+[package.metadata.component.target.dependencies]
+"docs:player" = { path = "../wit/player/world.wit" }
+"docs:enemy" = { path = "../wit/enemy/world.wit" }
+"docs:combat" = { path = "../wit/combat/world.wit" }
+"docs:inventory" = { path = "../wit/inventory/world.wit" }

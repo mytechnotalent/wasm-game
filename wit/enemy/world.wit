@@ -1,0 +1,148 @@
+/// MIT License
+///
+/// Copyright (c) 2025 Kevin Thomas
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+/// WIT interface definition for the enemy component.
+///
+/// This package defines enemy types, behaviors, and AI patterns
+/// for a Zelda-style action-adventure game including classic
+/// enemy types like Slimes, Skeletons, and Bosses.
+package docs:enemy@0.1.0;
+
+/// Enemy type definitions and data structures.
+interface types {
+    /// Types of enemies in the game.
+    enum enemy-kind {
+        /// Basic slime enemy - slow, low damage.
+        slime,
+        /// Skeleton warrior - medium speed, uses sword.
+        skeleton,
+        /// Bat - fast, flies over obstacles.
+        bat,
+        /// Goblin - aggressive, medium stats.
+        goblin,
+        /// Dark knight - heavy armor, high damage.
+        dark-knight,
+        /// Boss - powerful, unique attack patterns.
+        boss,
+    }
+
+    /// AI behavior patterns for enemies.
+    enum behavior {
+        /// Wanders randomly, attacks when player is close.
+        wander,
+        /// Actively chases the player.
+        chase,
+        /// Stays in place, attacks nearby players.
+        guard,
+        /// Runs away when health is low.
+        flee,
+        /// Complex boss-specific attack patterns.
+        boss-pattern,
+    }
+
+    /// Enemy position in 2D world coordinates.
+    record position {
+        /// X coordinate (horizontal position).
+        x: s32,
+        /// Y coordinate (vertical position).
+        y: s32,
+    }
+
+    /// Complete enemy state.
+    record enemy-state {
+        /// Type of enemy.
+        kind: enemy-kind,
+        /// Current health points.
+        health: u32,
+        /// Maximum health points.
+        max-health: u32,
+        /// Attack damage dealt to player.
+        attack: u32,
+        /// Defense rating for damage reduction.
+        defense: u32,
+        /// Experience reward when defeated.
+        exp-reward: u32,
+        /// Current position in the world.
+        pos: position,
+        /// Current AI behavior.
+        current-behavior: behavior,
+        /// Whether the enemy is currently alive.
+        is-alive: bool,
+    }
+}
+
+/// Enemy spawning and creation interface.
+interface spawn {
+    use types.{enemy-kind, enemy-state, position};
+
+    /// Spawn a new enemy of the specified kind at the given position.
+    spawn-enemy: func(kind: enemy-kind, pos: position) -> enemy-state;
+
+    /// Spawn a boss enemy with enhanced stats.
+    spawn-boss: func(pos: position) -> enemy-state;
+
+    /// Get the base stats for an enemy kind.
+    get-base-stats: func(kind: enemy-kind) -> enemy-state;
+}
+
+/// Enemy AI and behavior interface.
+interface ai {
+    use types.{enemy-state, position, behavior};
+
+    /// Calculate the enemy's next move based on player position.
+    ///
+    /// Returns the new position the enemy wants to move to.
+    calculate-move: func(enemy: enemy-state, player-pos: position) -> position;
+
+    /// Determine if the enemy should attack based on distance.
+    should-attack: func(enemy: enemy-state, player-pos: position) -> bool;
+
+    /// Update the enemy's behavior based on its current state.
+    update-behavior: func(enemy: enemy-state) -> behavior;
+
+    /// Calculate attack damage this enemy will deal.
+    get-attack-damage: func(enemy: enemy-state) -> u32;
+}
+
+/// Enemy damage and health interface.
+interface damage {
+    use types.{enemy-state};
+
+    /// Apply damage to an enemy.
+    ///
+    /// Returns updated enemy state after damage calculation.
+    take-damage: func(enemy: enemy-state, raw-damage: u32) -> enemy-state;
+
+    /// Check if the enemy is defeated.
+    is-defeated: func(enemy: enemy-state) -> bool;
+
+    /// Get the experience reward for defeating this enemy.
+    get-exp-reward: func(enemy: enemy-state) -> u32;
+}
+
+/// The enemy world exports all enemy-related interfaces.
+world enemy {
+    export types;
+    export spawn;
+    export ai;
+    export damage;
+}

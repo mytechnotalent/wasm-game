@@ -1,0 +1,20 @@
+[package]
+name = "player"
+version = "0.1.0"
+edition = "2021"
+description = "Player component for Zelda-style WASM game - handles movement, health, and stats"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[dependencies]
+wit-bindgen-rt = "0.41.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "docs:player"
+
+[package.metadata.component.target]
+path = "../wit/player/world.wit"
+world = "player"

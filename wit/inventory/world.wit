@@ -1,0 +1,209 @@
+/// MIT License
+///
+/// Copyright (c) 2025 Kevin Thomas
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+/// WIT interface definition for the inventory component.
+///
+/// This package defines items, equipment, and inventory management
+/// for a Zelda-style action-adventure game including weapons,
+/// armor, potions, and key items.
+package docs:inventory@0.1.0;
+
+/// Item type definitions and data structures.
+interface types {
+    /// Categories of items in the game.
+    enum item-category {
+        /// Offensive weapons (swords, bows).
+        weapon,
+        /// Defensive equipment (shields, armor).
+        armor,
+        /// Consumable items (potions, food).
+        consumable,
+        /// Quest and dungeon keys.
+        key-item,
+        /// Collectible treasures.
+        treasure,
+    }
+
+    /// Specific weapon types.
+    enum weapon-type {
+        /// Basic wooden sword.
+        wooden-sword,
+        /// Standard steel sword.
+        steel-sword,
+        /// Powerful master sword.
+        master-sword,
+        /// Ranged bow weapon.
+        bow,
+        /// Magical fire rod.
+        fire-rod,
+    }
+
+    /// Specific armor types.
+    enum armor-type {
+        /// Basic cloth tunic.
+        cloth-tunic,
+        /// Leather armor.
+        leather-armor,
+        /// Chain mail armor.
+        chain-mail,
+        /// Protective shield.
+        shield,
+        /// Magic-enhancing robe.
+        magic-robe,
+    }
+
+    /// Consumable item types.
+    enum consumable-type {
+        /// Restores health.
+        health-potion,
+        /// Fully restores health.
+        full-health-potion,
+        /// Temporarily boosts attack.
+        attack-boost,
+        /// Temporarily boosts defense.
+        defense-boost,
+        /// Antidote for poison.
+        antidote,
+    }
+
+    /// A single inventory item.
+    record item {
+        /// Unique item identifier.
+        id: u32,
+        /// Item's display name.
+        name: string,
+        /// Item category.
+        category: item-category,
+        /// Attack bonus (for weapons).
+        attack-bonus: u32,
+        /// Defense bonus (for armor).
+        defense-bonus: u32,
+        /// Healing amount (for consumables).
+        heal-amount: u32,
+        /// Current quantity in inventory.
+        quantity: u32,
+        /// Whether this item is currently equipped.
+        is-equipped: bool,
+    }
+
+    /// Player's complete inventory state.
+    record inventory-state {
+        /// Currently equipped weapon ID (0 = none).
+        equipped-weapon: u32,
+        /// Currently equipped armor ID (0 = none).
+        equipped-armor: u32,
+        /// Total number of items in inventory.
+        item-count: u32,
+        /// Maximum inventory capacity.
+        max-capacity: u32,
+        /// Gold/rupees currency.
+        gold: u32,
+    }
+
+    /// Result of using an item.
+    record use-result {
+        /// Whether the item was successfully used.
+        success: bool,
+        /// Health restored (if applicable).
+        health-restored: u32,
+        /// Attack boost applied (if applicable).
+        attack-boost: u32,
+        /// Defense boost applied (if applicable).
+        defense-boost: u32,
+        /// Message describing the result.
+        message: string,
+    }
+}
+
+/// Item creation and lookup interface.
+interface items {
+    use types.{item, weapon-type, armor-type, consumable-type};
+
+    /// Create a weapon item.
+    create-weapon: func(weapon: weapon-type) -> item;
+
+    /// Create an armor item.
+    create-armor: func(armor: armor-type) -> item;
+
+    /// Create a consumable item.
+    create-consumable: func(consumable: consumable-type, quantity: u32) -> item;
+
+    /// Get item stats by ID.
+    get-item-stats: func(item-id: u32) -> item;
+}
+
+/// Inventory management interface.
+interface management {
+    use types.{inventory-state, item};
+
+    /// Create a new empty inventory.
+    create-inventory: func() -> inventory-state;
+
+    /// Add an item to the inventory.
+    ///
+    /// Returns updated inventory state and success flag.
+    add-item: func(inv: inventory-state, item-id: u32) -> inventory-state;
+
+    /// Remove an item from the inventory.
+    remove-item: func(inv: inventory-state, item-id: u32) -> inventory-state;
+
+    /// Equip a weapon by item ID.
+    equip-weapon: func(inv: inventory-state, item-id: u32) -> inventory-state;
+
+    /// Equip armor by item ID.
+    equip-armor: func(inv: inventory-state, item-id: u32) -> inventory-state;
+
+    /// Add gold to the inventory.
+    add-gold: func(inv: inventory-state, amount: u32) -> inventory-state;
+
+    /// Spend gold from the inventory.
+    ///
+    /// Returns updated state; gold unchanged if insufficient funds.
+    spend-gold: func(inv: inventory-state, amount: u32) -> inventory-state;
+
+    /// Check if inventory is full.
+    is-full: func(inv: inventory-state) -> bool;
+}
+
+/// Item usage interface.
+interface usage {
+    use types.{use-result};
+
+    /// Use a consumable item.
+    ///
+    /// Returns the result of using the item.
+    use-item: func(item-id: u32, current-health: u32, max-health: u32) -> use-result;
+
+    /// Get the total attack bonus from equipped items.
+    get-total-attack-bonus: func(weapon-id: u32) -> u32;
+
+    /// Get the total defense bonus from equipped items.
+    get-total-defense-bonus: func(armor-id: u32) -> u32;
+}
+
+/// The inventory world exports all inventory-related interfaces.
+world inventory {
+    export types;
+    export items;
+    export management;
+    export usage;
+}

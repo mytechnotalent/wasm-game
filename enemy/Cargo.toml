@@ -1,0 +1,20 @@
+[package]
+name = "enemy"
+version = "0.1.0"
+edition = "2021"
+description = "Enemy component for Zelda-style WASM game - handles AI, spawning, and damage"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[dependencies]
+wit-bindgen-rt = "0.41.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "docs:enemy"
+
+[package.metadata.component.target]
+path = "../wit/enemy/world.wit"
+world = "enemy"

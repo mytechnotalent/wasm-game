@@ -1,0 +1,20 @@
+[package]
+name = "inventory"
+version = "0.1.0"
+edition = "2021"
+description = "Inventory component for Zelda-style WASM game - handles items, equipment, and consumables"
+license = "MIT"
+authors = ["Kevin Thomas"]
+
+[dependencies]
+wit-bindgen-rt = "0.41.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "docs:inventory"
+
+[package.metadata.component.target]
+path = "../wit/inventory/world.wit"
+world = "inventory"
